@@ -1,3 +1,5 @@
+'use client';
+
 import { LoginButton } from '@/components/auth/login-button';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -24,7 +26,7 @@ export default function Home() {
         <p className="text-white text-lg">A simple autthentication service</p>
 
         <div>
-          <LoginButton>
+          <LoginButton mode="modal" asChild>
             <Button
               variant="secondary"
               size="lg"
