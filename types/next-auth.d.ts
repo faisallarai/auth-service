@@ -4,6 +4,12 @@ import NextAuth, { DefaultSession } from 'next-auth';
 import { JWT } from 'next-auth/jwt';
 import { UserRole } from '@prisma/client';
 
+export type ExtendedUser = DefaultSession['user'] & {
+  role: UserRole;
+  isTwoFactorEnabled: boolean;
+  isOAuth: boolean;
+};
+
 declare module 'next-auth' {
   /**
    * Returned by `auth`, `useSession`, `getSession` and received as a prop on the `SessionProvider` React Context
@@ -12,6 +18,8 @@ declare module 'next-auth' {
     user: {
       /** The user's postal address. */
       role: UserRole;
+      isTwoFactorEnabled: boolean;
+      isOAuth: boolean;
       /**
        * By default, TypeScript merges new interface properties and overwrites existing ones.
        * In this case, the default session user properties will be overwritten,
@@ -48,5 +56,7 @@ declare module 'next-auth/jwt' {
     /** OpenID ID Token */
     idToken?: string;
     role: UserRole;
+    isTwoFactorEnabled: boolean;
+    isOAuth: boolean;
   }
 }

@@ -5,6 +5,7 @@ import { db } from './lib/db';
 import authConfig from './auth.config';
 import { getUserById } from './data/user';
 import { getTwoFactorConfirmationByUserId } from './data/two-factor-confirmation';
+import { getAccountByUserId } from './data/account';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
@@ -60,21 +61,39 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       }
 
       if (token.role && session.user) {
-        session.user.role = token.role;
+        session.user.role = token.role; // token.role as UserRole
+      }
+
+      if (session.user) {
+        session.user.isTwoFactorEnabled = token.isTwoFactorEnabled; // token.isTwoFactorEnabled as boolean;
+      }
+
+      if (session.user) {
+        session.user.name = token.name;
+        session.user.email = token.email!;
+        session.user.isOAuth = token.isOAuth;
       }
 
       return session;
     },
     async jwt({ token }) {
       // add new in here and pass it to session
-      console.log({ token });
       if (!token.sub) return token;
 
       const existingUser = await getUserById(token.sub);
 
       if (!existingUser) return token;
 
+      const existingAccount = await getAccountByUserId(existingUser.id);
+
+      token.isOAuth = !!existingAccount; // throw it into a boolean
+      token.name = existingUser.name;
+      token.email = existingUser.email;
       token.role = existingUser.role;
+      token.picture = existingUser.image;
+      token.role = existingUser.role;
+      token.isTwoFactorEnabled = existingUser.isTwoFactorEnabled;
+
       return token;
     },
   },
